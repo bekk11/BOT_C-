@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Localization;
+﻿using System.Globalization;
+using Microsoft.Extensions.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -25,12 +26,23 @@ public partial class BotUpdateHandler
 
     private async Task HandleTextMessageAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
+        if (message.Text!.Contains("uz", StringComparison.CurrentCultureIgnoreCase))
+        {
+            var res = await _userService.UpdateLanguageCodeAsync(message.From?.Id, "uz-Uz");
+        } else if (message.Text!.Contains("en", StringComparison.CurrentCultureIgnoreCase))
+        {
+            var res = await _userService.UpdateLanguageCodeAsync(message.From?.Id, "en-US");
+        } else if (message.Text!.Contains("ru", StringComparison.CurrentCultureIgnoreCase))
+        {
+            var res = await _userService.UpdateLanguageCodeAsync(message.From?.Id, "ru-Ru");
+        }
+        
         var from = message.From;
         _logger.LogInformation("Received a text message from {from?.FirstName}", from?.FirstName);
-
+        
         await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
-            text: _localizer.GetString("greeting"),
+            text: _localizer["greeting"],
             cancellationToken: cancellationToken
         );
     }
